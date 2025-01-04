@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'ghcr.io/asokva20/asokse:latest'
+        DOCKER_IMAGE = 'ghcr.io/USERNAME/django_app:latest'
         GITHUB_CREDENTIALS_ID = '111'
-        DJANGO_SETTINGS_MODULE = 'asokse.settings'
+        DJANGO_SETTINGS_MODULE = 'django_app.settings'
         VENV_PATH = "${WORKSPACE}/venv"
     }
 
@@ -116,7 +116,7 @@ pipeline {
                 subject: "Pipeline Failed: ${currentBuild.fullDisplayName}",
                 body: "Pipeline failed. Check console output at ${BUILD_URL}",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'asokva20@gmail.com'
+                to: 'email@domain.com'
             )
         }
 
@@ -125,7 +125,7 @@ pipeline {
                 subject: "Pipeline Succeeded: ${currentBuild.fullDisplayName}",
                 body: "Pipeline succeeded. Check console output at ${BUILD_URL}",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'asokva20@gmail.com'
+                to: 'email@domain.com'
             )
         }
     }
