@@ -1,0 +1,39 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+	"name": "Jenkins-Dev-Container",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "jenkins-local",
+	"workspaceFolder": "/workspace",
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {
+			"ppa": true,
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"version": "os-provided",
+			"installTools": true,
+			"toolsToInstall": "flake8,autopep8,black,yapf,mypy,pydocstyle,pycodestyle,bandit,pipenv,virtualenv,pytest,pylint"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+	},
+	"forwardPorts": [
+		8080,
+		50000
+	],
+	"customizations": {
+		"vscode":{
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.pylint",
+				"ms-python.black-formatter",
+				"ms-python.flake8",
+				"ms-python.isort",
+				"ms-python.autopep8"
+			]
+		}
+	}, 
+	"postCreateCommand": "pip3 install pytest pytest-django pytest-cov flake8 black isort"
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

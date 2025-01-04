@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  jenkins-local:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      # Jenkins home directory - stores all Jenkins data
+      - jenkins_home:/var/jenkins_home
+      # Docker socket - allows Jenkins to use host's Docker daemon
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Disables Docker TLS certificate verification, 
+      # allowing non-secure Docker connections (typically used in development)
+      - DOCKER_TLS_CERTDIR=""
+      # Setting Docker storage driver to overlay2 for better performance and stability
+      - DOCKER_DRIVER=overlay2
+    # Health check configuration to monitor Jenkins container status
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  jenkins_home:
+    name: "jenkins_home"
