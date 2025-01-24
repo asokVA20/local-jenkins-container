@@ -11,7 +11,10 @@ RUN apt update && \
     ca-certificates \
     curl \
     gnupg \
-    lsb-release
+    lsb-release \
+    libpq-dev \
+    openssl \
+    nano
 
 # Add Docker official GPG key
 RUN install -m 0755 -d /etc/apt/keyrings && \
@@ -28,26 +31,15 @@ RUN echo \
 RUN apt update && \
     apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Create a Docker group and add jenkins user to it
-RUN getent group docker || groupadd docker && usermod -aG docker jenkins
-
-# Create a Docker socket directory
-RUN mkdir -p /var/run && \
-    touch /var/run/docker.sock && \
-    chown -R jenkins:jenkins /var/run/docker.sock && \
-    chmod 666 /var/run/docker.sock
+# Create Docker group and add jenkins user to it
+RUN groupadd -f docker && \
+    usermod -aG docker jenkins && \
+    mkdir -p /var/run
 
 # Install System Packages needed for python projects
 RUN apt install -y python3 python3-pip python3-venv python3-setuptools 
 
-# Install System Packages for Security Scanning
-RUN apt install -y python3-bandit
-
-# Install System Packages for Python Testing (optional: for django projects)
-RUN apt install -y python3-pytest python3-pytest-django python3-pytest-cov
-
-# Install System Packages for code quality checks
-RUN apt install -y python3-flake8 python3-isort
+RUN rm -rf /var/lib/apt/lists/*
 
 # Install trivy for security scanning
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
@@ -64,6 +56,10 @@ RUN mkdir -p /workspace && \
 RUN echo '[pytest]\npython_files = tests.py test_*.py *_tests.py\ntestpaths = tests' > /workspace/pytest.ini && \
     chown jenkins:jenkins /workspace/pytest.ini && \
     chmod 644 /workspace/pytest.ini
+
+# Create the docker group in container and add jenkins user to it
+RUN groupadd -f -g 999 docker && \
+    usermod -aG docker jenkins
 
 # Switch back to jenkins user
 USER jenkins

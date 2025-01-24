@@ -1,6 +1,6 @@
 // For format details, see https://aka.ms/devcontainer.json.
 {
-	"name": "Jenkins-Dev-Container",
+	"name": "Jenkins Dev Container",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "jenkins-local",
 	"workspaceFolder": "/workspace",

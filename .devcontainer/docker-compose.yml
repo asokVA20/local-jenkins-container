@@ -1,22 +1,31 @@
 version: '3.8'
+# TODO: docker exec jenkins-local chmod 666 /var/run/docker.sock
 services:
   jenkins-local:
     build:
       context: .
       dockerfile: Dockerfile
     user: jenkins
+    container_name: jenkins-local
+
     ports:
       - "8080:8080"
       - "50000:50000"
+    group_add:
+      - docker
     volumes:
       # Jenkins home directory - stores all Jenkins data
       - jenkins_home:/var/jenkins_home
-      # Docker socket - allows Jenkins to use host's Docker daemon
+      # Docker certificates
+      - jenkins-docker-certs:/certs/client
+      # Add Docker socket and config
       - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins_docker_config:/home/jenkins/.docker
+      - ./certs:/certs  # Add local certs directory
     environment:
-      # Disables Docker TLS certificate verification, 
-      # allowing non-secure Docker connections (typically used in development)
-      - DOCKER_TLS_CERTDIR=""
+      # Configure Docker TLS certificates
+      - DOCKER_TLS_CERTDIR=
+      - DOCKER_HOST=unix:///var/run/docker.sock
       # Setting Docker storage driver to overlay2 for better performance and stability
       - DOCKER_DRIVER=overlay2
     # Health check configuration to monitor Jenkins container status
@@ -26,7 +35,33 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    depends_on:
+      - docker
+
+  docker:
+    image: docker:dind
+    container_name: jenkins-docker
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - docker-certs:/certs/server
+      # Add the same Docker config volume
+      - jenkins_docker_config:/root/.docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "2375:2375"  # Change to non-TLS port
+    restart: unless-stopped
 
 volumes:
   jenkins_home:
-    name: "jenkins_home"
+    name: "jenkins_local_home"
+  jenkins-docker-certs:
+    name: "jenkins_local_docker_certs"
+  docker-certs:
+    name: "jenkins_local_docker_certs"
+  # Add new volume for Docker config
+  jenkins_docker_config:
+    name: "jenkins_local_docker_config"
+
