@@ -5,7 +5,8 @@ pipeline {
         DOCKER_IMAGE = 'ghcr.io/USERNAME/django_app:latest'
         GITHUB_CREDENTIALS_ID = '111'
         DJANGO_SETTINGS_MODULE = 'django_app.settings'
-        VENV_PATH = "${WORKSPACE}/venv"
+        VENV_PATH = "/workspace/venv"
+        PATH = "${VENV_PATH}/bin:${env.PATH}"
     }
 
     stages {
@@ -13,14 +14,10 @@ pipeline {
             steps {
                 script {
                     sh '''#!/bin/bash
-                        # Remove existing venv if it exists
-                        rm -rf ${VENV_PATH}
-
-                        # Create and activate virtual environment
-                        python3 -m venv ${VENV_PATH}
-                        source ${VENV_PATH}/bin/activate
-
-                        # Install dependencies
+                        # Use the pre-created virtual environment
+                        . ${VENV_PATH}/bin/activate
+                        
+                        # Install project dependencies
                         pip install -r requirements.txt
                     '''
                 }
@@ -31,7 +28,7 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                     source ${VENV_PATH}/bin/activate
-                    pip install safety
+                    
                     bandit -r . -f json -o bandit-results.json || true
                     safety check -r requirements.txt --json > safety-results.json || true
                 '''
@@ -55,7 +52,6 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                     source ${VENV_PATH}/bin/activate
-                    pip install black
         
                     flake8 . --output-file=flake8-results.txt || true
                     black --check . || true

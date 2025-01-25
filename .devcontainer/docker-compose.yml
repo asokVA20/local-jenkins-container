@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    # user: root
     user: jenkins
     container_name: jenkins-local
 
@@ -35,6 +36,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - ttms-user-management-api-internal
+      - ttms-user-management-api-external
     depends_on:
       - docker
 
@@ -64,4 +68,11 @@ volumes:
   # Add new volume for Docker config
   jenkins_docker_config:
     name: "jenkins_local_docker_config"
+
+networks:
+  ttms-user-management-api-internal:
+    name: ttms-user-management-api-internal
+    internal: true
+  ttms-user-management-api-external:
+    name: ttms-user-management-api-external
 
