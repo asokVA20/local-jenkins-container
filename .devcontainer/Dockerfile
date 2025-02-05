@@ -57,9 +57,17 @@ RUN echo '[pytest]\npython_files = tests.py test_*.py *_tests.py\ntestpaths = te
     chown jenkins:jenkins /workspace/pytest.ini && \
     chmod 644 /workspace/pytest.ini
 
+# Setup Docker socket directory and permissions
+RUN mkdir -p /var/run && \
+    touch /var/run/docker.sock && \
+    chmod 666 /var/run/docker.sock
+
 # Create the docker group in container and add jenkins user to it
 RUN groupadd -f -g 999 docker && \
     usermod -aG docker jenkins
+
+# Setup proper Docker socket permissions
+RUN chmod 666 /var/run/docker.sock
 
 # Switch back to jenkins user
 USER jenkins

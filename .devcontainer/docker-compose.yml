@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 # TODO: docker exec jenkins-local chmod 666 /var/run/docker.sock
 services:
   jenkins-local:
@@ -22,7 +22,7 @@ services:
       # Add Docker socket and config
       - /var/run/docker.sock:/var/run/docker.sock
       - jenkins_docker_config:/home/jenkins/.docker
-      - ./certs:/certs  # Add local certs directory
+      - ./certs:/certs # Add local certs directory
     environment:
       # Configure Docker TLS certificates
       - DOCKER_TLS_CERTDIR=
@@ -39,6 +39,12 @@ services:
     networks:
       - ttms-user-management-api-internal
       - ttms-user-management-api-external
+      - ttms-time-tracking-api-internal
+      - ttms-time-tracking-api-external
+      - ttms-task-management-api-internal
+      - ttms-task-management-api-external
+      - ttms-checklist-api-internal
+      - ttms-checklist-api-external
     depends_on:
       - docker
 
@@ -55,7 +61,7 @@ services:
       - jenkins_docker_config:/root/.docker
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "2375:2375"  # Change to non-TLS port
+      - "2375:2375" # Change to non-TLS port
     restart: unless-stopped
 
 volumes:
@@ -70,9 +76,38 @@ volumes:
     name: "jenkins_local_docker_config"
 
 networks:
+  vivantes-humanitas-internal:
+    name: vivantes-humanitas-internal
+    internal: true
+  vivantes-humanitas-external:
+    name: vivantes-humanitas-external
+
+  user-api-internal:
+    name: user-api-internal
+    internal: true
+  user-api-external:
+    name: user-api-external
+
   ttms-user-management-api-internal:
     name: ttms-user-management-api-internal
     internal: true
   ttms-user-management-api-external:
     name: ttms-user-management-api-external
 
+  ttms-time-tracking-api-internal:
+    name: ttms-time-tracking-api-internal
+    internal: true
+  ttms-time-tracking-api-external:
+    name: ttms-time-tracking-api-external
+
+  ttms-task-management-api-internal:
+    name: ttms-task-management-api-internal
+    internal: true
+  ttms-task-management-api-external:
+    name: ttms-task-management-api-external
+
+  ttms-checklist-api-internal:
+    name: ttms-checklist-api-internal
+    internal: true
+  ttms-checklist-api-external:
+    name: ttms-checklist-api-external
